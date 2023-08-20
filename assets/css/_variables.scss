@@ -1,0 +1,166 @@
+@charset "UTF-8";
+
+//////////////////////////////
+// clampの自動計算
+//////////////////////////////
+@use "sass:math";
+
+@function responsiveClamp($minFontSize, $maxFontSize, $minViewport, $maxViewport) {
+
+  $fontSizeRate: $maxFontSize - $minFontSize;
+  $viewportRate: $maxViewport - $minViewport;
+
+  $changingSize: math.div(math.round(math.div($fontSizeRate, $viewportRate) * 10000), 100);
+
+  $fixedSize: math.div(math.round(($minFontSize - math.div($fontSizeRate, $viewportRate) * $minViewport) * 62.5), 1000);
+
+  $minRemFontSize: math.div(math.round($minFontSize * 62.5), 1000);
+
+  $maxRemFontSize: math.div(math.round($maxFontSize * 62.5), 1000);
+
+  @return clamp(#{$minRemFontSize}rem, #{$fixedSize}rem + #{$changingSize}vw, #{$maxRemFontSize}rem);
+}
+
+
+//////////////////////////////
+// pxをremに変換
+//////////////////////////////
+@function rem($pixels, $base: 16) {
+  @return ($pixels / $base) * 1rem;
+}
+
+
+//////////////////////////////
+// ブレイクポイント
+//////////////////////////////
+$breakpoint: (
+  tab: "(width < 1024px)",
+  sp: "(width < 600px)",
+);
+
+@mixin mq($bp) {
+  @media #{map-get($breakpoint, $bp)} {
+    @content;
+  }
+}
+
+
+//////////////////////////////
+// 変数
+//////////////////////////////
+// $black: #333;
+$white: #fff;
+$text: #002532;
+$blue: #58b5e2;
+$teacher: #9ee8d9;
+$gradient: linear-gradient(90deg, rgba(171, 236, 176, 1) 0%, rgba(164, 215, 239, 1) 100%);
+$job-colors: (
+  chief: #58b5e2,
+  teacher: #9ee8d9,
+  assistant: #abecb0,
+  counselor: #a4d7ef,
+);
+$title: 'Montserrat', sans-serif;
+
+
+//////////////////////////////
+// 配列
+//////////////////////////////
+$jobs: teacher,
+  assistant,
+  counselor;
+
+
+//////////////////////////////
+// パーツ
+//////////////////////////////
+@mixin title {
+  display: flex;
+  flex-direction: column;
+  width: responsiveClamp(280, 1080, 320, 1150);
+  margin: 0 auto;
+
+  &__english {
+    font-family: $title;
+    font-size: responsiveClamp(30, 60, 320, 1024);
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  &__japanese {
+    color: $blue;
+    font-size: responsiveClamp(12, 16, 320, 1024);
+    font-weight: 700;
+  }
+}
+
+@mixin list {
+  position: relative;
+  font-size: responsiveClamp(12, 16, 320, 1024);
+  translate: 1.25em 0; // 20px
+  white-space: normal;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0.625em; // 10px
+    left: -1.25em;
+    width: 0.5em; // 8px
+    height: 0.5em;
+    border-radius: 50%;
+  }
+}
+
+@mixin btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: $gradient;
+  transition: all 0.4s ease-out;
+  z-index: 1;
+
+  span {
+    position: relative;
+    color: $white;
+    font-size: rem(14);
+    font-weight: 700;
+    text-transform: uppercase;
+    z-index: 4;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(-90deg, rgba(171, 236, 176, 1) 0%, rgba(164, 215, 239, 1) 100%);
+    transition: all 0.4s ease-out;
+    z-index: 2;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: rem(24);
+    height: 1px;
+    background: $white;
+    translate: 0 -50%;
+    z-index: 3;
+  }
+
+  &:hover {
+    scale: 1.05;
+  }
+
+  &:hover::before {
+    opacity: 0;
+  }
+}
